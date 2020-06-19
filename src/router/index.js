@@ -24,6 +24,12 @@ let router = new VueRouter({
                     component:  resolve => require(['../views/User/UserList.vue'], resolve),
                 },
                 {
+                    path: '/UserListEdit',
+                    name: 'UserListEdit',
+                    component:  resolve => require(['../views/User/UserListEdit.vue'], resolve),
+                },
+
+                {
                     path: '/LoginLog',
                     name: 'LoginLog',
                     component:  resolve => require(['../views/User/LoginLog.vue'], resolve),
@@ -33,6 +39,17 @@ let router = new VueRouter({
                     name: 'CoursClassification',
                     component:  resolve => require(['../views/Courseware/CoursClassification.vue'], resolve),
                 },
+                {
+                    path: '/CoursClassificationEr',
+                    name: 'CoursClassificationEr',
+                    component:  resolve => require(['../views/Courseware/CoursClassificationEr.vue'], resolve),
+                },
+                {
+                    path: '/AddCoursClassification',
+                    name: 'AddCoursClassification',
+                    component:  resolve => require(['../views/Courseware/AddCoursClassification.vue'], resolve),
+                },
+
                 {
                     path: '/CourseList',
                     name: 'CourseList',

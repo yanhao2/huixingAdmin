@@ -1,6 +1,15 @@
 <template>
     <div class="UserList">
-        <HeaderComponent :name="'用户列表'"></HeaderComponent>
+        <div class="HeaderComponent">
+            <div class="row">
+                <div class="border">
+                </div>
+                <div style="font-size: 17px;">用户列表</div>
+            </div>
+            <div>
+                <Button icon="ios-search" @click="LoadData">刷新</Button>
+            </div>
+        </div>
         <div class="content">
             <div>
                 <Card dis-hover>
@@ -19,13 +28,12 @@
                         </div>
                         <div class="row">
                             <div class="name">注册时间：</div>
-                            <DatePicker type="datetimerange" size="small" placeholder="请选择开始时间-结束时间" style="width: 180px"></DatePicker>
+                            <DatePicker type="datetimerange" size="small" @on-change="onChangeTime" v-model="time"  placeholder="请选择开始时间-结束时间" style="width: 180px"></DatePicker>
                         </div>
                         <div class="row">
                             <div class="name">帐号类型：</div>
-                            <Select v-model="formInline.teacherStatus" size="small" style="width:150px" placeholder="全部">
-                                <Option value="0">普通帐号</Option>
-                                <Option value="1">老师帐号</Option>
+                            <Select v-model="formInline.type" size="small" style="width:150px" placeholder="全部">
+                                <Option  v-for="(item, i) in typeList" :value="i">{{item}}</Option>
                             </Select>
                         </div>
                         <div class="row">
@@ -52,22 +60,32 @@
                         </Button>
                     </p>
                     <div class="table">
-                        <Table border :columns="columns" size="small" :data="data1">
+                        <Table border :columns="columns" size="small" :data="data" :loading="loading">
+                            <template slot-scope="{ row, index }" slot="status">
+                                {{row.status == 0 ? '否' : '是'}}
+                            </template>
+                            <template slot-scope="{ row, index }" slot="teacherStatus">
+                                {{row.teacherStatus == 0 ? '否' : '是'}}
+                            </template>
+                            <template slot-scope="{ row, index }" slot="enableStatus">
+                                {{row.enableStatus == 0 ? '禁用' : '启用'}}
+                            </template>
+
                             <template slot-scope="{ row, index }" slot="action">
                                 <div class="TableAction">
                                     <Tooltip content="查看" placement="top" :transfer="true">
                                         <Icon type="ios-eye-outline"
-                                              style="margin-right: 5px;font-size: 22px; color: #0077CB"
+                                              style="margin-right: 5px;font-size: 22px; color: #0077CB;cursor: pointer;"
                                               />
                                     </Tooltip>
                                     <Tooltip content="编辑" placement="top" :transfer="true">
                                         <Icon type="ios-create-outline"
-                                              style="margin-right: 5px;font-size: 22px; color: #0077CB"
-                                              />
+                                              style="margin-right: 5px;font-size: 22px; color: #0077CB;cursor: pointer;"
+                                              @click="onEdit(row)"/>
                                     </Tooltip>
                                     <Tooltip content="删除" placement="top" :transfer="true">
-                                        <Icon type="ios-trash-outline" style="font-size: 22px;color: #F56C6C;"
-                                              />
+                                        <Icon type="ios-trash-outline" style="font-size: 22px;color: #F56C6C;cursor: pointer;"
+                                              @click="onDelete(row)"/>
                                     </Tooltip>
                                 </div>
                             </template>
@@ -91,18 +109,22 @@
 <script>
     import HeaderComponent from '../../components/HeaderComponent'
     import {formatTs} from '../../moment/index'
+    import api from "../../api/api";
     export default {
         name: "UserList",
         components: {HeaderComponent},
         data() {
             return {
+                loading: true,
+                time: [],
+                typeList: [],
                 formInline: {
                     phone: '',
                     level: '',
-                    teacherStatus: '',
                     endTime: '',
                     startTime: '',
                     pageSize: 10,
+                    type: '',
                     pageNum: 1,
                     total: 0
                 },
@@ -133,32 +155,7 @@
                         label: 'Canberra'
                     }
                 ],
-                data1: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        date: '2016-10-02'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        date: '2016-10-04'
-                    }
-                ]
+                data: []
             }
         },
         computed: {
@@ -180,10 +177,10 @@
                 columns.push({
                     align: 'center',
                     title: '手机号',
-                    width: 100,
+                    width: 150,
                     sortable: true,
                     fixed: 'left',
-                    key: 'id',
+                    key: 'phone',
                 });
                 columns.push({
                     align: 'center',
@@ -191,7 +188,7 @@
                     width: 100,
                     sortable: true,
                     fixed: 'left',
-                    key: 'id',
+                    key: 'nickname',
                 });
                 columns.push({
                     align: 'center',
@@ -199,67 +196,60 @@
                     width: 100,
                     fixed: 'left',
                     sortable: true,
-                    key: 'id',
+                    key: 'realName',
                 });
                 columns.push({
                     align: 'center',
                     title: '用户等级',
                     width: 120,
                     sortable: true,
-                    key: 'id',
+                    key: 'level',
                 });
                 columns.push({
                     align: 'center',
                     title: '可用积分',
                     width: 120,
                     sortable: true,
-                    key: 'id',
+                    key: 'credit',
                 });
                 columns.push({
                     align: 'center',
                     title: '总收益额',
                     width: 100,
-                    key: 'id',
+                    key: 'totalRevenue',
                 });
                 columns.push({
                     align: 'center',
                     title: '账户余额',
                     width: 100,
-                    key: 'id',
+                    key: 'amount',
                 });
                 columns.push({
                     align: 'center',
                     title: '累计提现',
                     width: 100,
-                    key: 'id',
-                });
-                columns.push({
-                    align: 'center',
-                    title: '学弟学妹',
-                    width: 100,
-                    key: 'id',
+                    key: 'totalWithdrawAmount',
                 });
                 columns.push({
                     align: 'center',
                     title: '是否会员',
                     width: 100,
-
-                    key: 'id',
+                    slot: 'status',
                 });
                 columns.push({
                     align: 'center',
-                    title: '帐号类型',
+                    title: '是否老师',
                     width: 100,
-                    key: 'id',
+                    slot: 'teacherStatus',
                 });
                 columns.push({
                     title: '注册时间',
                     align: 'center',
                     sortable: true,
                     width: 180,
-                    key: 'gmtCreate',
+                    key: 'registerTime',
                     render: (h, params) => {
-                        let text = this.formatTs(params.row.gmtCreate);
+                        let text = this.formatTs(params.row.registerTime);
                         return h('div', [
                             h('div', {
                                 slot: 'content',
@@ -278,9 +268,9 @@
                     align: 'center',
                     width: 180,
                     sortable: true,
-                    key: 'gmtModified',
+                    key: 'activationTime',
                     render: (h, params) => {
-                        let text = this.formatTs(params.row.gmtModified);
+                        let text = this.formatTs(params.row.activationTime);
                         return h('div', [
                             h('div', {
                                 slot: 'content',
@@ -298,7 +288,7 @@
                     align: 'center',
                     title: '启用',
                     width: 100,
-                    key: 'id',
+                    slot: 'enableStatus',
                 });
                 columns.push({
                     title: '操作',
@@ -312,11 +302,62 @@
         },
         methods: {
             formatTs: formatTs,
+            // 选择时间
+            onChangeTime() {
+                this.formInline.startTime = this.formatTs(this.time[0]);
+                this.formInline.endTime = this.formatTs(this.time[1]);
+            },
             onSearch () {
+                this.formInline.pageNum = 1
+                this.LoadData()
 
             },
             onReset () {
-
+                this.formInline.phone = ''
+                this.formInline.level = ''
+                this.formInline.teacherStatus = ''
+                this.formInline.endTime = ''
+                this.formInline.startTime = ''
+                this.formInline.pageSize = 10
+                this.formInline.pageNum = 1
+                this.time = []
+                this.LoadData()
+            },
+            onEdit (record) {
+                this.$router.push({
+                    path: "/UserListEdit",
+                    query: {
+                        id: record.id
+                    }
+                });
+            },
+            onDelete (record) {
+                console.log(record)
+                if (record.enableStatus == 0) {
+                    this.$Message.error('该账号已经是禁用状态，请勿重复操作');
+                } else {
+                    let form = {
+                        enableStatus: 0,
+                        id: record.id,
+                        password: 0,
+                        phone: record.phone,
+                        platformStatus: record.platformStatus,
+                    }
+                    this.LoadDataEdit(form)
+                }
+            },
+            async LoadDataEdit(form) {
+                try {
+                    let data = await api.UserListEdit(form)
+                    if (data.code === 200) {
+                        this.$Message.success('删除成功');
+                        this.onBack()
+                    } else {
+                        this.$Message.error(data.msg);
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
             },
             onExport () {
                 this.isExport = true
@@ -327,22 +368,65 @@
             // 表格数据分页
             onChangePage(page) {
                 this.formInline.pageNum = page
+                this.LoadData()
             },
             // 表格数据个数
             onChangePageSize(size) {
                 this.formInline.pageSize = size
+                this.LoadData()
             },
             async LoadData () {
                 try {
-
+                    this.loading = true
+                    let form = {
+                        endTime: this.formInline.endTime,
+                        level: this.formInline.level,
+                        pageNum: this.formInline.pageNum,
+                        pageSize: this.formInline.pageSize,
+                        phone: this.formInline.phone,
+                        startTime: this.formInline.startTime,
+                        type: this.formInline.type,
+                    }
+                    let result = await api.UserList(form)
+                    if (result.code === 200) {
+                        this.data = result.data.records
+                        this.formInline.total = result.data.total
+                    } else {
+                        this.$Message.error(result.message);
+                    }
+                    this.loading = false
                 }
                 catch (e) {
                     console.error(e)
+                }
+            },
+            objToArr(obj) {
+                var arr = []
+                for (let i in obj) {
+                    arr.push(obj[i])
+                }
+                return arr;
+            },
+            // let obj = { '未完成': 5, '已完成': 8, '待确认': 4, '已取消': 6 };
+
+            async LoadDictionary () {
+                try {
+                    let result = await api.UserListType()
+                    if (result.code === 200) {
+                        let item = this.objToArr(result.data)
+                        this.typeList = item
+                    } else {
+                        this.$Message.error(result.message);
+                    }
+                }
+                catch (e) {
+                    console.log(e)
                 }
             }
         },
         created() {
             this.LoadData()
+            this.LoadDictionary()
         },
         mounted() {
 
@@ -356,7 +440,24 @@
     .UserList {
         height: 100%;
         padding: 10px 0;
-
+        .HeaderComponent{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fff;
+            border-bottom: 1px solid #E9E9E9;
+            padding: 5px 10px;
+            .row{
+                display: flex;
+                align-items: center;
+                .border{
+                    width: 4px;
+                    height: 15px;
+                    background-color: #1378F6;
+                    margin-right: 10px;
+                }
+            }
+        }
         .content {
             padding: 10px;
             background-color: #fff;

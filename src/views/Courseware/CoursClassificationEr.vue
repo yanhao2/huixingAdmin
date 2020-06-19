@@ -4,10 +4,11 @@
             <div class="row">
                 <div class="border">
                 </div>
-                <div style="font-size: 17px;">课程分类</div>
+                <div style="font-size: 17px;">二级分类</div>
             </div>
             <div>
-                <Button icon="ios-search" @click="LoadData">刷新</Button>
+                <Button icon="ios-search" @click="LoadData" style="margin-right: 15px;">刷新</Button>
+                <Button icon="ios-arrow-back" @click="onBack">返回</Button>
             </div>
         </div>
 
@@ -35,7 +36,6 @@
                             <Button type="primary" icon="ios-search" size="small" style="margin-right: 15px" @click="onSearch()">查询
                             </Button>
                             <Button icon="ios-search" size="small" @click="onReset()">重置</Button>
-
                         </div>
                     </div>
                 </Card>
@@ -45,25 +45,14 @@
                     <p slot="title">
                         数据列表
                     </p>
-                    <p slot="extra">
-                        <Button type="primary" icon="ios-add" size="small" @click="onAdd">
-                            添加
-                        </Button>
-                    </p>
                     <div class="table">
                         <Table border :columns="columns" size="small" :data="data" :loading="loading">
-                            <template slot-scope="{ row, index }" slot="classifyImage">
-                                <img :src="row.classifyImage" alt="" style="width: 40px;">
-                            </template>
                             <template slot-scope="{ row, index }" slot="classifyStatus">
                                 {{row.classifyStatus == 0 ? '下架' : '上架' }}
                             </template>
 
-                            <template slot-scope="{ row, index }" slot="SetupThe">
-                                <div style="display: flex;justify-content: space-around">
-                                   <span style="color: #15d6ba;cursor: pointer;" @click="onAddLook(row)">新增下级</span>
-                                   <span style="color: #15d6ba;cursor: pointer;" @click="onLookLower(row)">查看下级</span>
-                                </div>
+                            <template slot-scope="{ row, index }" slot="updatedBy">
+                                {{row.user.username }}
                             </template>
                             <template slot-scope="{ row, index }" slot="action">
                                 <div class="TableAction">
@@ -99,7 +88,7 @@
     import {formatTs} from '../../moment/index'
     import api from '../../api/api'
     export default {
-        name: "CoursClassification",
+        name: "CoursClassificationEr",
         data() {
             return {
                 loading: true,
@@ -118,7 +107,9 @@
             }
         },
         computed: {
-
+            firstId () {
+                return this.$route.query.firstId
+            },
             columns() {
                 let columns = [];
 
@@ -126,17 +117,17 @@
                     align: 'center',
                     title: '分类名称',
                     sortable: true,
-                    key: 'classifyName',
+                    key: 'tagName',
                 });
                 columns.push({
                     align: 'center',
-                    title: '分类Icon',
-                    slot: 'classifyImage',
+                    title: '课程数量',
+                    key: 'curriculumCount',
                 });
                 columns.push({
                     align: 'center',
                     title: '创建人',
-                    key: 'updatedBy',
+                    slot: 'updatedBy',
                 });
 
                 columns.push({
@@ -153,13 +144,8 @@
                 });
                 columns.push({
                     align: 'center',
-                    title: '设置',
-                    slot: 'SetupThe',
-                });
-                columns.push({
-                    align: 'center',
                     title: '排序',
-                    key: 'classifySort',
+                    key: 'tagSort',
                 });
                 columns.push({
                     title: '操作',
@@ -171,29 +157,10 @@
         },
         methods: {
             formatTs: formatTs,
-            onAdd () {
-                this.$router.push({path: '/AddCoursClassification'})
-            },
-            //  查看下级
-            onLookLower (record) {
-                this.$router.push({
-                    path: "/CoursClassificationEr",
-                    query: {
-                        firstId: record.id
-                    }
-                });
-            },
-            // 新增下级
-            onAddLook (record) {
-                this.$router.push({
-                    path: "/AddCoursClassification",
-                    query: {
-                        firstId: record.id
-                    }
-                });
+            onBack () {
+                this.$router.go(-1)
             },
             onSearch () {
-                this.formInline.pageNum = 1
                 this.LoadData()
             },
             onReset () {
@@ -237,8 +204,9 @@
                         startTime: this.formInline.startTime,
                         endTime: this.formInline.endTime,
                         username: this.formInline.username,
+                        firstId: this.firstId
                     }
-                    let result = await api.CoursClassificationList(form)
+                    let result = await api.CoursClassificationErList(form)
                     if (result.code === 200) {
                         this.data = result.data.records
                         this.formInline.total = result.data.total

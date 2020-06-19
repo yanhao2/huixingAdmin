@@ -66,7 +66,13 @@ export default {
               if (result.code === 200) {
                   this.$store.commit('setStorageToken', result.data.token);
                   this.$store.commit('setStorageUser', JSON.stringify(result.data.user));
-                  this.$router.push({path: `/`});
+                  let activeData = localStorage.getItem('activeData')
+                  if (activeData) {
+                      this.$router.push({path: `/${activeData}`});
+                  } else {
+                      this.$router.push({path: `/`});
+                  }
+
               } else {
                   this.$Message.error(result.message);
               }

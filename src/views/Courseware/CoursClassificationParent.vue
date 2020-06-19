@@ -1,16 +1,6 @@
 <template>
     <div class="UserList">
-        <div class="HeaderComponent">
-            <div class="row">
-                <div class="border">
-                </div>
-                <div style="font-size: 17px;">课程分类</div>
-            </div>
-            <div>
-                <Button icon="ios-search" @click="LoadData">刷新</Button>
-            </div>
-        </div>
-
+        <HeaderComponent :name="'课程分类'" ></HeaderComponent>
         <div class="content">
             <div>
                 <Card dis-hover>
@@ -61,8 +51,8 @@
 
                             <template slot-scope="{ row, index }" slot="SetupThe">
                                 <div style="display: flex;justify-content: space-around">
-                                   <span style="color: #15d6ba;cursor: pointer;" @click="onAddLook(row)">新增下级</span>
-                                   <span style="color: #15d6ba;cursor: pointer;" @click="onLookLower(row)">查看下级</span>
+                                   <span style="color: #15d6ba;cursor: pointer;">新增下级</span>
+                                   <span style="color: #15d6ba;cursor: pointer;">查看下级</span>
                                 </div>
                             </template>
                             <template slot-scope="{ row, index }" slot="action">
@@ -96,10 +86,12 @@
 </template>
 
 <script>
+    import HeaderComponent from '../../components/HeaderComponent'
     import {formatTs} from '../../moment/index'
     import api from '../../api/api'
     export default {
         name: "CoursClassification",
+        components: {HeaderComponent},
         data() {
             return {
                 loading: true,
@@ -118,7 +110,6 @@
             }
         },
         computed: {
-
             columns() {
                 let columns = [];
 
@@ -174,36 +165,11 @@
             onAdd () {
                 this.$router.push({path: '/AddCoursClassification'})
             },
-            //  查看下级
-            onLookLower (record) {
-                this.$router.push({
-                    path: "/CoursClassificationEr",
-                    query: {
-                        firstId: record.id
-                    }
-                });
-            },
-            // 新增下级
-            onAddLook (record) {
-                this.$router.push({
-                    path: "/AddCoursClassification",
-                    query: {
-                        firstId: record.id
-                    }
-                });
-            },
             onSearch () {
-                this.formInline.pageNum = 1
-                this.LoadData()
+
             },
             onReset () {
-                this.formInline.classifyName = '' //分类名称
-                this.formInline.username = '' //分类名称
-                this.formInline.endTime = ''
-                this.formInline.startTime = ''
-                this.formInline.pageNum = 1
-                this.time = []
-                this.LoadData()
+
             },
             onExport () {
                 this.isExport = true
@@ -214,7 +180,6 @@
             // 表格数据分页
             onChangePage(page) {
                 this.formInline.pageNum = page
-                console.log(page)
                 this.LoadData()
             },
             // 表格数据个数
@@ -267,24 +232,7 @@
     .UserList {
         height: 100%;
         padding: 10px 0;
-        .HeaderComponent{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #fff;
-            border-bottom: 1px solid #E9E9E9;
-            padding: 5px 10px;
-            .row{
-                display: flex;
-                align-items: center;
-                .border{
-                    width: 4px;
-                    height: 15px;
-                    background-color: #1378F6;
-                    margin-right: 10px;
-                }
-            }
-        }
+
         .content {
             padding: 10px;
             background-color: #fff;

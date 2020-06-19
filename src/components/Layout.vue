@@ -67,7 +67,7 @@
                         </el-badge>
                     </el-popover>
                     <i class="el-icon-setting cursor" style="margin-right: 15px;"></i>
-                    <i class="el-icon-switch-button cursor"></i>
+                    <i class="el-icon-switch-button cursor" style="cursor: pointer" @click="onLogout"></i>
                 </el-header>
 
                 <el-main style="padding: 0;height: calc(100% - 60px);background-color: #f5f5f5">
@@ -100,16 +100,25 @@ export default {
   },
   methods: {
       onSelect (index, indexPath) {
+          localStorage.setItem('activeData',  index)
           this.activeData = index
           this.openedsList = indexPath
           this.$store.commit('setStorageRouter', JSON.stringify(indexPath));
       },
+      onLogout () {
+          localStorage.removeItem('user')
+          localStorage.removeItem('routerUrl')
+          localStorage.removeItem('token')
+          this.$router.push({path: `/login`});
+      }
   },
   created () {
       let user = JSON.parse(this.user)
       this.userName = user.roleName
       if (this.routerUrl) {
           this.openedsList = JSON.parse(this.routerUrl)
+          this.activeData = localStorage.getItem('activeData')
+          this.$forceUpdate()
       } else {
           this.$store.commit('setStorageRouter', JSON.stringify(this.openedsList));
       }

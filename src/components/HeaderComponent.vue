@@ -1,15 +1,5 @@
 <template>
-    <div class="HeaderComponent">
-        <div class="row">
-            <div class="border">
 
-            </div>
-            <div>{{name}}</div>
-        </div>
-        <div>
-            <Button icon="ios-search">刷新</Button>
-        </div>
-    </div>
 </template>
 
 <script>
