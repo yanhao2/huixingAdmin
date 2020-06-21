@@ -33,7 +33,7 @@
                         <div class="row">
                             <div class="name">帐号类型：</div>
                             <Select v-model="formInline.type" size="small" style="width:150px" placeholder="全部">
-                                <Option  v-for="(item, i) in typeList" :value="i">{{item}}</Option>
+                                <Option v-for="(item, i) in typeList" :key="i" :value="item.id">{{item.name}}</Option>
                             </Select>
                         </div>
                         <div class="row">
@@ -76,7 +76,7 @@
                                     <Tooltip content="查看" placement="top" :transfer="true">
                                         <Icon type="ios-eye-outline"
                                               style="margin-right: 5px;font-size: 22px; color: #0077CB;cursor: pointer;"
-                                              />
+                                              @click="onToView(row)"/>
                                     </Tooltip>
                                     <Tooltip content="编辑" placement="top" :transfer="true">
                                         <Icon type="ios-create-outline"
@@ -129,32 +129,6 @@
                     total: 0
                 },
                 isExport: false,
-                cityList: [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
                 data: []
             }
         },
@@ -216,18 +190,21 @@
                     align: 'center',
                     title: '总收益额',
                     width: 100,
+                    sortable: true,
                     key: 'totalRevenue',
                 });
                 columns.push({
                     align: 'center',
                     title: '账户余额',
                     width: 100,
+                    sortable: true,
                     key: 'amount',
                 });
                 columns.push({
                     align: 'center',
                     title: '累计提现',
                     width: 100,
+                    sortable: true,
                     key: 'totalWithdrawAmount',
                 });
                 columns.push({
@@ -323,6 +300,14 @@
                 this.time = []
                 this.LoadData()
             },
+            onToView (record) {
+                this.$router.push({
+                    path: "/UserDetails",
+                    query: {
+                        id: record.id
+                    }
+                });
+            },
             onEdit (record) {
                 this.$router.push({
                     path: "/UserListEdit",
@@ -332,18 +317,16 @@
                 });
             },
             onDelete (record) {
-                console.log(record)
                 if (record.enableStatus == 0) {
                     this.$Message.error('该账号已经是禁用状态，请勿重复操作');
                 } else {
-                    let form = {
-                        enableStatus: 0,
-                        id: record.id,
-                        password: 0,
-                        phone: record.phone,
-                        platformStatus: record.platformStatus,
-                    }
-                    this.LoadDataEdit(form)
+                    let formData = new FormData();
+                    formData.append('enableStatus', 0);
+                    formData.append('id', record.id);
+                    formData.append('password', 0);
+                    formData.append('phone', record.phone);
+                    formData.append('platformStatus', record.platformStatus);
+                    this.LoadDataEdit(formData)
                 }
             },
             async LoadDataEdit(form) {
@@ -351,7 +334,6 @@
                     let data = await api.UserListEdit(form)
                     if (data.code === 200) {
                         this.$Message.success('删除成功');
-                        this.onBack()
                     } else {
                         this.$Message.error(data.msg);
                     }
@@ -378,16 +360,15 @@
             async LoadData () {
                 try {
                     this.loading = true
-                    let form = {
-                        endTime: this.formInline.endTime,
-                        level: this.formInline.level,
-                        pageNum: this.formInline.pageNum,
-                        pageSize: this.formInline.pageSize,
-                        phone: this.formInline.phone,
-                        startTime: this.formInline.startTime,
-                        type: this.formInline.type,
-                    }
-                    let result = await api.UserList(form)
+                    let formData = new FormData();
+                    formData.append('endTime', this.formInline.endTime);
+                    formData.append('level', this.formInline.level);
+                    formData.append('pageNum', this.formInline.pageNum);
+                    formData.append('pageSize', this.formInline.pageSize);
+                    formData.append('phone', this.formInline.phone);
+                    formData.append('startTime', this.formInline.startTime);
+                    formData.append('type', this.formInline.type);
+                    let result = await api.UserList(formData)
                     if (result.code === 200) {
                         this.data = result.data.records
                         this.formInline.total = result.data.total
@@ -403,7 +384,7 @@
             objToArr(obj) {
                 var arr = []
                 for (let i in obj) {
-                    arr.push(obj[i])
+                    arr.push({id: 0, name: obj[i]})
                 }
                 return arr;
             },

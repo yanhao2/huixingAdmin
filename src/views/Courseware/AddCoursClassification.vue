@@ -22,7 +22,7 @@
                                 <Input v-model="formValidate.classifyName" placeholder="请输入分类名称"></Input>
                             </FormItem>
                             <FormItem label="上级分类">
-                                <Select v-model="formValidate.parentId" :disabled="!disabled" placeholder="请选择上级分类">
+                                <Select v-model="formValidate.parentId" :disabled="firstId ? true : false" placeholder="请选择上级分类">
                                     <Option :value="item.id" v-for="(item, i) in ParentList" :key="i">{{item.classifyName}}</Option>
                                 </Select>
                             </FormItem>
@@ -67,6 +67,7 @@
 
 <script>
     import api from "../../api/api";
+    import {formatNumber }  from '../../moment/index'
     export default {
         name: "AddCoursClassification",
         data() {
@@ -87,6 +88,7 @@
                     classifySort: '', // 排序
                     classifyStatus: '', //状态 0:下架，1:上架
                     parentId: '', // 上级分类
+                    classifyImageKey: ''
                 },
                 ruleValidate: {
                     classifyName: [
@@ -107,6 +109,7 @@
             },
         },
         methods: {
+            formatNumber: formatNumber,
             onBack () {
                 this.$router.go(-1)
             },
@@ -114,7 +117,7 @@
                 this.$refs[name].validate((valid) => {
                     if (valid) {
                         let form = {
-                            classifyImage: this.formValidate.classifyImage,
+                            classifyImage: this.formValidate.classifyImageKey,
                             classifyName: this.formValidate.classifyName,
                             classifySort: this.formValidate.classifySort,
                             classifyStatus: this.formValidate.classifyStatus,
@@ -156,7 +159,7 @@
                 if (!isLt2M) {
                     this.$Message.error('上传图片大小不能超过 2MB!')
                 }
-                this.QiniuData.key = file.name
+                this.QiniuData.key = `${this.formatNumber(new Date())}` + file.name
                 return isJPG && isLt2M;
             },
             async LoadQiNiuToken () {
@@ -181,6 +184,7 @@
                     let data = await api.updateUrl(form)
                     if (data.code === 200) {
                         this.formValidate.classifyImage = data.data
+                        this.formValidate.classifyImageKey = form.key
                         this.$Message.success('上传成功');
                         if (this.$refs.upload) {
                             this.$refs.upload.clearFiles()

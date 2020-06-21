@@ -14,7 +14,7 @@ export function formatNumber (ts) {
   let retVal = ''
   if (ts) {
     let time = moment(ts)
-    retVal = time.format('X')
+    retVal = time.format('x')
     // debug && console.debug(`${ts} => ${retVal}(${time.format()})`)
   }
   return retVal

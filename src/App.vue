@@ -5,6 +5,7 @@
 </template>
 
 <script>
+
     export default {
         name: "App",
         data () {
@@ -42,5 +43,9 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: #333;
+        .ivu-table-cell{
+            padding-left: 0;
+            padding-right: 0;
+        }
     }
 </style>

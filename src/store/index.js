@@ -5,7 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        urlApi: 'http://101.37.76.197:9527/',
+        // urlApi: 'http://101.37.76.197:9527/',
+        urlApi: 'http://server.cuckoo.city:9527/',
         token: '',
         user: '',
         routerUrl: ''

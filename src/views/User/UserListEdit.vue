@@ -23,12 +23,12 @@
                         为必填项
                     </p>
                     <div class="addForm">
-                        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="120" style="width: 20%;margin: 0 auto;">
+                        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="300">
                             <FormItem label="手机号码" prop="phone">
-                                <Input v-model="formValidate.phone" placeholder="请输入手机号码"></Input>
+                                <Input v-model="formValidate.phone" style="width: 200px" placeholder="请输入手机号码"></Input>
                             </FormItem>
                             <FormItem label="账号密码">
-                                <Input  type="password" v-model="formValidate.password" placeholder="请输入账号密码"></Input>
+                                <Input  type="password" v-model="formValidate.password" style="width: 200px" placeholder="请输入账号密码"></Input>
                             </FormItem>
                             <FormItem label="是否特殊账号">
                                 <RadioGroup v-model="formValidate.platformStatus">
@@ -89,14 +89,13 @@
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
                     if (valid) {
-                        let form = {
-                            enableStatus: this.formValidate.enableStatus,
-                            id: this.id,
-                            password: this.formValidate.password,
-                            phone: this.formValidate.phone,
-                            platformStatus: this.formValidate.platformStatus,
-                        }
-                        this.LoadDataEdit(form)
+                        let formData = new FormData();
+                        formData.append('enableStatus', this.formValidate.enableStatus);
+                        formData.append('id', this.id);
+                        formData.append('password', this.formValidate.password);
+                        formData.append('phone', this.formValidate.phone);
+                        formData.append('platformStatus', this.formValidate.platformStatus);
+                        this.LoadDataEdit(formData)
                     } else {
                         this.$Message.error('请按要求填写');
                     }
@@ -115,10 +114,27 @@
                     console.error(e)
                 }
             },
+            async LoadData () {
+                try {
+                    if (this.id) {
+                        let data = await api.UserDetails({id: this.id})
+                        if (data.code === 200) {
+                            let formData = data.data
+                            this.formValidate.enableStatus = formData.enableStatus + ''
+                            this.formValidate.phone = formData.phone + ''
+                            this.formValidate.platformStatus = formData.payAmount + ''
+                        } else {
+                            this.$Message.error(data.msg);
+                        }
+                    }
 
+                } catch (e) {
+                    console.error(e)
+                }
+            },
         },
         created() {
-
+            this.LoadData()
         },
 
         mounted() {

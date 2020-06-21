@@ -5,7 +5,7 @@
                 <div class="logo">
                     <img src="../assets/logo.png" alt="">
                 </div>
-                <el-menu :default-openeds="openedsList" :default-active="activeData" :router="true" @select="onSelect">
+                <el-menu :default-openeds="openedsList" :unique-opened="true" :default-active="activeData" :router="true" @select="onSelect">
                     <el-submenu index="1">
                         <template slot="title"><i class="el-icon-message"></i>用户管理</template>
                         <el-menu-item index="/">用户列表</el-menu-item>
@@ -15,6 +15,42 @@
                         <template slot="title"><i class="el-icon-menu"></i>课件管理</template>
                         <el-menu-item index="CoursClassification">课程分类</el-menu-item>
                         <el-menu-item index="CourseList">课程列表</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="3">
+                        <template slot="title"><i class="el-icon-menu"></i>讲师管理</template>
+                        <el-menu-item index="InstructorList">讲师列表</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="4">
+                        <template slot="title"><i class="el-icon-menu"></i>社区管理</template>
+                        <el-menu-item index="PlatformPost">平台帖子</el-menu-item>
+                        <el-menu-item index="UserPost">用户帖子</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="5">
+                        <template slot="title"><i class="el-icon-menu"></i>运营系统</template>
+                        <el-menu-item index="BannerList">轮播管理</el-menu-item>
+                        <el-menu-item index="NoticeList">公告</el-menu-item>
+                        <el-menu-item index="ActivityList">活动管理</el-menu-item>
+                    </el-submenu>
+                    <el-submenu index="6">
+                        <template slot="title"><i class="el-icon-menu"></i>UGC审核系统</template>
+                        <el-submenu index="6-1" class="menuTitleOne">
+                            <template slot="title">帖子审核</template>
+                            <el-menu-item index="InvitationUnaudited" class="menuTitleTwo">未审核</el-menu-item>
+                            <el-menu-item index="InvitationOkPass" class="menuTitleTwo">已通过</el-menu-item>
+                            <el-menu-item index="InvitationNotPass" class="menuTitleTwo">未通过</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="6-2" class="menuTitleOne">
+                            <template slot="title">评论审核</template>
+                            <el-menu-item index="RemarkUnaudited" class="menuTitleTwo">未审核</el-menu-item>
+                            <el-menu-item index="RemarkNotPass" class="menuTitleTwo">未通过</el-menu-item>
+                        </el-submenu>
+                    </el-submenu>
+                    <el-submenu index="7">
+                        <template slot="title"><i class="el-icon-menu"></i>财务</template>
+                        <el-submenu index="7-1" class="menuTitleOne">
+                            <template slot="title">对账管理</template>
+                            <el-menu-item index="ReconciliationList" class="menuTitleTwo">对账列表</el-menu-item>
+                        </el-submenu>
                     </el-submenu>
                 </el-menu>
             </el-aside>
@@ -146,8 +182,16 @@ export default {
             height: 100%;
         }
         .el-menu{
-            .el-menu-item{
+            .el-menu-item {
                 padding-left: 50px!important;
+            }
+            .menuTitleOne{
+                .el-submenu__title{
+                    padding-left: 50px!important;
+                }
+                .menuTitleTwo{
+                    padding-left: 70px!important;
+                }
             }
         }
         .logo{

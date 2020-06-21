@@ -52,8 +52,8 @@
                     </p>
                     <div class="table">
                         <Table border :columns="columns" size="small" :data="data" :loading="loading">
-                            <template slot-scope="{ row, index }" slot="classifyImage">
-                                <img :src="row.classifyImage" alt="" style="width: 40px;">
+                            <template slot-scope="{ row, index }" slot="viewImage">
+                                <img :src="row.viewImage" alt="" style="width: 40px;">
                             </template>
                             <template slot-scope="{ row, index }" slot="classifyStatus">
                                 {{row.classifyStatus == 0 ? '下架' : '上架' }}
@@ -131,7 +131,7 @@
                 columns.push({
                     align: 'center',
                     title: '分类Icon',
-                    slot: 'classifyImage',
+                    slot: 'viewImage',
                 });
                 columns.push({
                     align: 'center',
